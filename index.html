@@ -83,6 +83,17 @@ dl.gloss dt{font-weight:700;font-family:var(--mono);font-size:12.5px}
 dl.gloss dd{margin:0;color:var(--muted)}
 ul.plain{margin:0;padding-left:18px;display:grid;gap:6px;max-width:80ch}
 footer{padding-top:40px;font-size:12px;color:var(--muted)}
+tr.tot td{background:var(--sunk);font-weight:700;border-top:2px solid var(--line)}
+tr.sel td{background:var(--accent-soft)}
+#typedyn tbody tr{cursor:pointer}
+.bar2{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+button.exp{font:inherit;font-size:13px;padding:7px 12px;border-radius:7px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);cursor:pointer;font-weight:600}
+button.exp:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.best{font-size:13.5px}
+table.key{font-size:13px}
+table.key td{white-space:normal;text-align:left;vertical-align:top}
+table.key td:first-child{width:230px}
+td.act{white-space:normal;min-width:260px;max-width:340px;text-align:left;font-size:12.5px}
 @media (max-width:560px){.bar{grid-template-columns:1fr;gap:4px}.bar .val{text-align:left}input[type=search]{width:100%}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 html{scroll-behavior:smooth}
@@ -97,7 +108,7 @@ html{scroll-behavior:smooth}
 </header>
 
 <nav class="secnav" aria-label="Secțiuni"><div class="in">
-  <a href="#rezumat">Pe scurt</a><a href="#categorii">Categorii</a><a href="#produse">Produse</a><a href="#lansari">Campanii lansate</a><a href="#campanii">Lista campaniilor</a><a href="#wasted">Wasted spend</a><a href="#recente">Lansate recent</a><a href="#metoda">Cum citim cifrele</a>
+  <a href="#rezumat">Pe scurt</a><a href="#categorii">Categorii</a><a href="#produse">Produse</a><a href="#lansari">Campanii lansate</a><a href="#campanii">Lista campaniilor</a><a href="#wasted">Wasted spend</a><a href="#recente">Lansate recent</a>
 </div></nav>
 
 <section id="rezumat">
@@ -120,7 +131,7 @@ html{scroll-behavior:smooth}
   </div>
   <div class="panel">
     <div class="tbl"><table id="cattbl"></table></div>
-    <p class="note">Spend PPC și TACoS includ toate tipurile de reclame (SP, SB, SBV, SD) atribuite produsului. „Spend în campanii noi” arată ce parte din spend-ul SP/SD al categoriei a mers prin campaniile lansate în aug–oct.</p>
+    <p class="note">Spend PPC și TACoS includ toate tipurile de reclame (SP, SB, SBV, SD) atribuite produsului. „Spend în campanii noi” arată ce parte din spend-ul SP/SD al categoriei a mers prin campaniile lansate în aug–oct. TACoS-ul și target-ul categoriei sunt ponderate cu vânzările, așa că un produs mare sub target poate acoperi unul peste target: la Best Sellers, 12.12% față de 12.06% iese aproape egal pentru că Magnesium Gummies e cu $3,745 sub spend-ul permis de target, iar GLP-1 cu $5,923 peste. Coloana „Spend peste / sub target” arată exact cât s-a cheltuit peste sau sub target-ul fiecărui produs, adunat pe categorie. Vânzările și spend-ul sunt pe ASIN-ul din fișierul vostru, la fel ca în coloana „TACOS last 30 days” din fișier; pachetele de 3/6 și variantele de 180ct au în plus $41,730 vânzări și $1,447 spend și nu sunt incluse. Totalul adună doar produsele din fișierul de target; vânzările contului ($1,005,493) includ și produse care nu sunt în fișier (bundle-uri, variante vechi).</p>
   </div>
 </section>
 
@@ -143,7 +154,7 @@ html{scroll-behavior:smooth}
 
 <section id="lansari">
   <h2>Campaniile lansate în aug–oct 2026</h2>
-  <p class="lede">Am inclus aici toate campaniile create în august, septembrie și octombrie 2026, după luna din numele campaniei. Verdictul se bazează pe ultimele 30 de zile și pe pragul ACoS al categoriei produsului (detalii în „Cum citim cifrele”).</p>
+  <p class="lede">Am inclus aici toate campaniile create în august, septembrie și octombrie 2026, după luna din numele campaniei. Verdictul se bazează pe ultimele 30 de zile și pe pragul ACoS al categoriei produsului: Best Sellers 60%, Produse bune / medii / spend controlat / medii spre mici 70%, Produse noi 2026 80%, Lansări noi 100%, Multi-produs 70%. „Merge” = minim 2 comenzi și ACoS sub prag; „La limită” = ACoS până la 1.5× prag; „Nu merge” = minim $25 cheltuiți fără vânzări sau ACoS peste 1.5× prag; „Prea puține date” = sub $25 cheltuiți.</p>
   <div class="grid2">
     <div class="panel"><h3>Pe tip de campanie (ultimele 30 de zile)</h3><div class="tbl"><table id="typetbl"></table></div></div>
     <div class="panel"><h3>Pe verdict</h3><div class="tbl"><table id="verdtbl"></table></div>
@@ -167,7 +178,13 @@ html{scroll-behavior:smooth}
       <label>Caută în nume<input type="search" id="cf-q" placeholder="ex. SUP_EXACT"></label>
       <button class="reset" id="cf-reset" type="button">Resetează</button>
     </div>
-    <div class="sum" id="cf-sum"></div>
+    <div class="panel" style="background:var(--bg)">
+      <div class="bar2"><h3>Ce tip de campanie merge pe filtrele selectate</h3><button class="exp" id="cf-exp-type" type="button">Export CSV tipuri</button></div>
+      <p class="note">Tabelul folosește toate filtrele de mai sus, mai puțin „Tip”, ca să compari tipurile între ele (ex. alegi o categorie și vezi ce tip de campanie aduce ACoS sub prag). Click pe un rând filtrează lista de mai jos pe acel tip.</p>
+      <p class="best" id="cf-best"></p>
+      <div class="tbl" style="max-height:420px"><table id="typedyn"></table></div>
+    </div>
+    <div class="bar2"><div class="sum" id="cf-sum"></div><button class="exp" id="cf-exp" type="button">Export CSV campanii</button></div>
     <div class="tbl"><table id="ctbl"></table></div>
     <div class="more" id="cf-more"></div>
   </div>
@@ -178,6 +195,19 @@ html{scroll-behavior:smooth}
   <p class="lede">Căutările clienților (search terms) din ultimele 30 de zile, în campaniile Sponsored Products active. Numărăm ca pierdut doar spend-ul pe căutări cu <b>zero comenzi</b>. O căutare cu 0 comenzi intră la „waste cert” doar după ce a strâns destule click-uri cât produsul să fi făcut, în mod normal, <b>2 comenzi</b>. Pragul se calculează din conversia PPC a fiecărui produs: 11 click-uri la Nattokinase (conversie 19.5%), 30 la Testosterone (6.8%). Sub acest prag, rezultatul poate fi și întâmplător, așa că le punem la „de urmărit”.</p>
   <div class="kpis" id="wkpis"></div>
   <div class="callouts" id="wcall"></div>
+  <div class="panel">
+    <h3>Cum citim tabelul de mai jos</h3>
+    <p>Fiecare rând este o căutare a unui client (search term) pe care am plătit click-uri într-o anumită campanie, în ultimele 30 de zile. Nu sunt keyword-urile pe care le targetăm, ci ce au scris efectiv clienții. Coloanele <b>Nivel</b> și <b>Relevanță</b> spun cât de sigur e că pierdem bani pe căutarea respectivă și dacă ea descrie produsul. Coloana <b>Ce facem</b> spune acțiunea pentru fiecare rând.</p>
+    <div class="tbl" style="max-height:none"><table class="key">
+      <tbody>
+        <tr><td><span class="pill r">Waste cert</span></td><td>0 comenzi după un număr de click-uri la care produsul ar fi trebuit, în mod normal, să facă 2 comenzi (coloana „Prag click-uri”). Aici e sigur că termenul nu vinde. Dacă e irelevant sau un brand concurent, îl negăm. Dacă descrie exact produsul, nu-l negăm: scădem bid-ul și ne uităm la ofertă (preț, review-uri, imagini).</td></tr>
+        <tr><td><span class="pill w">De urmărit</span></td><td>0 comenzi, dar încă sub pragul de click-uri. Cu așa puține click-uri, și un termen bun poate ieși la 0 comenzi din întâmplare. Nu luăm decizia acum. Termenii irelevanți îi negăm imediat ce ating pragul. Pe cei relevanți îi lăsăm să strângă date.</td></tr>
+        <tr><td><span class="pill n">Ineficient (ACoS &gt; 200%)</span></td><td><b>Aceștia nu sunt bani pierduți:</b> termenul a adus comenzi, dar foarte scump (sub $1 vânzări la $2 cheltuiți). De cele mai multe ori este exact cuvântul principal al produsului (ex. „tart cherry capsules”, „milk thistle supplement”). Nu îl negăm, pentru că am pierde vizibilitatea pe cuvântul de bază. Scădem bid-ul pe el. La produsele în lansare, acceptăm temporar un cost mai mare cât timp produsul strânge vânzări și review-uri.</td></tr>
+        <tr><td><span class="pill g">Relevant (cuvânt principal)</span></td><td>Căutarea conține cuvântul principal al produsului. Problema e prețul plătit pe click sau conversia, nu că apărem la căutări greșite.</td></tr>
+        <tr><td><span class="pill r">Prea larg / irelevant</span> <span class="pill n">Brand competitor</span> <span class="pill n">ASIN</span></td><td>Căutarea nu descrie produsul nostru, e brandul altcuiva sau un produs concret al altcuiva. Aici se poate tăia: negativ exact (sau negativ pe ASIN).</td></tr>
+        <tr><td><span class="pill w">în lansare</span></td><td>Produsul este marcat „New launch / Push” în fișierul vostru. Aici tolerăm costuri mai mari, iar decizia se ia după perioada de lansare.</td></tr>
+      </tbody></table></div>
+  </div>
   <div class="panel">
     <div class="filters">
       <label>Nivel<select id="wf-k"></select></label>
@@ -204,30 +234,7 @@ html{scroll-behavior:smooth}
   </div>
 </section>
 
-<section id="metoda">
-  <h2>Cum citim cifrele</h2>
-  <div class="grid2">
-    <div class="panel"><h3>Termeni</h3>
-      <dl class="gloss">
-        <dt>TACoS</dt><dd>Spend PPC ÷ vânzări totale ale produsului (organic + reclame). Este indicatorul din fișierul vostru de target.</dd>
-        <dt>ACoS</dt><dd>Spend PPC ÷ vânzări venite din reclame. 80% înseamnă $80 cheltuiți pentru $100 vânzări din reclame.</dd>
-        <dt>CPC</dt><dd>Cât plătim în medie pe un click.</dd>
-        <dt>CVR</dt><dd>Din 100 de click-uri, câte devin comenzi.</dd>
-        <dt>Search term</dt><dd>Ce a scris efectiv clientul în căutarea Amazon.</dd>
-      </dl></div>
-    <div class="panel"><h3>Reguli folosite</h3>
-      <ul class="plain">
-        <li><b>Status TACoS</b>: „În target” la sau sub target, „Aproape” până la +20% peste target, „Peste target” peste atât.</li>
-        <li><b>Prag ACoS pe categorie</b> pentru campanii: Best Sellers 60%, Produse bune / medii / spend controlat / medii spre mici 70%, Produse noi 2026 80%, Lansări noi 100%, Multi-produs 70%. Pragurile urmează intervalele ACoS din notele fișierului vostru și regula de lansare de 100%.</li>
-        <li><b>Verdict campanie</b> (ultimele 30 de zile): „Merge” = minim 2 comenzi și ACoS sub prag. „La limită” = are vânzări și ACoS până la 1.5× prag. „Nu merge” = minim $25 cheltuiți și fără vânzări sau ACoS peste 1.5× prag. „Prea puține date” = sub $25 cheltuiți.</li>
-        <li><b>Waste cert</b>: căutare cu 0 comenzi și cel puțin atâtea click-uri cât să fi adus 2 comenzi la conversia PPC a produsului (minim 8; pentru campaniile multi-produs se folosește conversia medie a contului, 12.5%, adică 17 click-uri). Sub prag, căutarea e „de urmărit”. Căutările cu ACoS peste 200% au adus vânzări, așa că le arătăm separat și nu le numărăm ca pierdere.</li>
-        <li><b>Relevanță căutare</b> (wasted spend): „Relevant” = căutarea conține cuvântul principal al produsului (ex. „cortisol”, „tart cherry”, „magnesium”); la campaniile multi-produs, al oricărui produs din catalog. „Produs în lansare” = produsele marcate „New launch” în fișierul vostru.</li>
-        <li><b>Direcție campanie</b>: compară ACoS-ul din ultimele 30 de zile cu perioada anterioară, doar la campaniile cu minim $20 spend în fiecare perioadă.</li>
-        <li>Methylene Blue Gummies este suspendat și nu are vânzări în ultimele 30 de zile. Din acest motiv, vânzările categoriei „Produse noi 2026” arată mai jos decât sunt de fapt.</li>
-      </ul></div>
-  </div>
-</section>
-<footer>Surse: Amazon Ads (contul US), vânzări totale per produs din raportarea de vânzări a contului, categorii și target-uri din fișierul „TACOS Target” (citit pe 20 oct 2026). În perioada anterioară, 90 de campanii foarte mici, cu $245 spend în total, nu apar individual. Totalurile de cont le includ.</footer>
+
 </div>
 
 <script>
@@ -270,7 +277,8 @@ function catAgg(){
     const pp=ps.reduce((a,p)=>a+p.ppcs,0), ppp=ps.reduce((a,p)=>a+p.pppcs,0);
     const ns=ps.reduce((a,p)=>a+p.newspend,0);
     const st=c=>ps.filter(p=>p.status===c).length;
-    return {c,n:ps.length,s,ps:ps_,sp,psp,t:sp/s*100,pt:psp/ps_*100,tgt:tw/tws,acos:sp/pp*100,pacos:psp/ppp*100,ns,
+    const allow=ps.filter(p=>p.tgt!=null).reduce((a,p)=>a+p.tgt/100*p.sales,0);
+    return {c,n:ps.length,s,ps:ps_,sp,psp,allow,ovr:sp-allow,t:sp/s*100,pt:psp/ps_*100,tgt:tw/tws,acos:sp/pp*100,pacos:psp/ppp*100,ns,
       ok:st('În target'),near:st('Aproape de target'),over:st('Peste target')};
   });
 }
@@ -279,11 +287,17 @@ function catAgg(){
   const max=Math.max(...A.map(a=>Math.max(a.t,a.tgt)))*1.08;
   $('#catbars').innerHTML=A.map(a=>{
     const over=a.t>a.tgt;
-    return `<div class="bar"><span>${a.c}</span><div class="track" role="img" aria-label="${a.c}: TACoS ${a.t.toFixed(1)}%, target ${a.tgt.toFixed(1)}%"><div class="fill ${over?'over':''}" style="width:${a.t/max*100}%"></div><div class="mark" style="left:${a.tgt/max*100}%"></div></div><span class="val">${a.t.toFixed(1)}% <span class="note">/ target ${a.tgt.toFixed(1)}%</span></span></div>`;
+    return `<div class="bar"><span>${a.c}</span><div class="track" role="img" aria-label="${a.c}: TACoS ${a.t.toFixed(1)}%, target ${a.tgt.toFixed(1)}%"><div class="fill ${over?'over':''}" style="width:${a.t/max*100}%"></div><div class="mark" style="left:${a.tgt/max*100}%"></div></div><span class="val">${a.t.toFixed(2)}% <span class="note">/ target ${a.tgt.toFixed(2)}%</span></span></div>`;
   }).join('');
-  const head=`<thead><tr><th class="l">Categorie</th><th>Produse</th><th>Vânzări 30z</th><th>Δ vânzări</th><th>Spend PPC 30z</th><th>Δ spend</th><th>TACoS 30z</th><th>TACoS anterior</th><th>Target</th><th>ACoS 30z</th><th>ACoS anterior</th><th>Spend în campanii noi</th><th class="l">Produse în target / aproape / peste</th></tr></thead>`;
-  const rows=A.map(a=>`<tr><td class="l"><b>${a.c}</b></td><td>${a.n}</td><td>${fmt$(a.s)}</td><td>${delta(a.s,a.ps,false)}</td><td>${fmt$(a.sp)}</td><td>${delta(a.sp,a.psp,true)}</td><td><b class="${a.t>a.tgt?'up-bad':'up-good'}">${fmtP(a.t)}</b></td><td>${fmtP(a.pt)}</td><td>${fmtP(a.tgt)}</td><td>${fmtP(a.acos)}</td><td>${fmtP(a.pacos)}</td><td>${fmt$(a.ns)}</td><td class="l"><span class="pill g">${a.ok}</span> <span class="pill w">${a.near}</span> <span class="pill r">${a.over}</span></td></tr>`).join('');
-  $('#cattbl').innerHTML=head+'<tbody>'+rows+'</tbody>';
+  const ovf=v=>`<span class="${v>0?'up-bad':'up-good'}">${v>0?'+':'−'}${fmt$(Math.abs(v))}</span>`;
+  const TS=A.reduce((x,a)=>x+a.s,0),TSP=A.reduce((x,a)=>x+a.sp,0);
+  const head=`<thead><tr><th class="l">Categorie</th><th>Produse</th><th>Vânzări 30z</th><th>Δ vânzări</th><th>% din vânzări</th><th>Spend PPC 30z</th><th>Δ spend</th><th>% din spend</th><th>TACoS 30z</th><th>TACoS anterior</th><th>Target</th><th>Spend peste (+) / sub (−) target</th><th>ACoS 30z</th><th>ACoS anterior</th><th>Spend în campanii noi</th><th class="l">Produse în target / aproape / peste</th></tr></thead>`;
+  const rows=A.map(a=>`<tr><td class="l"><b>${a.c}</b></td><td>${a.n}</td><td>${fmt$(a.s)}</td><td>${delta(a.s,a.ps,false)}</td><td>${fmtP(a.s/TS*100)}</td><td>${fmt$(a.sp)}</td><td>${delta(a.sp,a.psp,true)}</td><td>${fmtP(a.sp/TSP*100)}</td><td><b class="${a.t>a.tgt?'up-bad':'up-good'}">${fmtP(a.t,2)}</b></td><td>${fmtP(a.pt)}</td><td>${fmtP(a.tgt,2)}</td><td>${ovf(a.ovr)}</td><td>${fmtP(a.acos)}</td><td>${fmtP(a.pacos)}</td><td>${fmt$(a.ns)}</td><td class="l"><span class="pill g">${a.ok}</span> <span class="pill w">${a.near}</span> <span class="pill r">${a.over}</span></td></tr>`).join('');
+  // Total row: sums the categories; TACoS/ACoS recomputed from the summed money, target weighted by sales like the categories
+  const T=A.reduce((t,a)=>({n:t.n+a.n,s:t.s+a.s,ps:t.ps+a.ps,sp:t.sp+a.sp,psp:t.psp+a.psp,pp:t.pp+a.sp/(a.acos/100),ppp:t.ppp+a.psp/(a.pacos/100),tw:t.tw+a.tgt*a.s,al:t.al+a.allow,ns:t.ns+a.ns,ok:t.ok+a.ok,near:t.near+a.near,over:t.over+a.over}),{n:0,s:0,ps:0,sp:0,psp:0,pp:0,ppp:0,tw:0,al:0,ns:0,ok:0,near:0,over:0});
+  const tt=T.sp/T.s*100,ttg=T.tw/T.s;
+  const totRow=`<tr class="tot"><td class="l">Total</td><td>${T.n}</td><td>${fmt$(T.s)}</td><td>${delta(T.s,T.ps,false)}</td><td>100%</td><td>${fmt$(T.sp)}</td><td>${delta(T.sp,T.psp,true)}</td><td>100%</td><td><b class="${tt>ttg?'up-bad':'up-good'}">${fmtP(tt,2)}</b></td><td>${fmtP(T.psp/T.ps*100)}</td><td>${fmtP(ttg,2)}</td><td>${ovf(T.sp-T.al)}</td><td>${fmtP(T.sp/T.pp*100)}</td><td>${fmtP(T.psp/T.ppp*100)}</td><td>${fmt$(T.ns)}</td><td class="l"><span class="pill g">${T.ok}</span> <span class="pill w">${T.near}</span> <span class="pill r">${T.over}</span></td></tr>`;
+  $('#cattbl').innerHTML=head+'<tbody>'+rows+totRow+'</tbody>';
 })();
 // generic table helper
 function makeTable(el,cols,rows,state,limit){
@@ -309,13 +323,13 @@ const trTxt=t=>t==='mai bine'?'<span class="up-good">▼ mai bine</span>':t==='m
     {k:'catro',h:'Categorie',l:1},{k:'dir',h:'Direcție',l:1},
     {k:'sales',h:'Vânzări 30z',f:v=>fmt$(v)},{k:'dsales',h:'Δ vânzări',f:(v)=>v==null?'–':`<span class="${v<-0.5?'up-bad':v>0.5?'up-good':'flat'}">${(v>0?'+':'')+v.toFixed(1)}%</span>`},
     {k:'spend',h:'Spend PPC 30z',f:v=>fmt$(v)},{k:'perday',h:'Spend / zi',f:v=>fmt$(v)},{k:'budget',h:'Buget alocat / zi',f:v=>fmt$(v)},
-    {k:'tacos',h:'TACoS 30z',f:(v,r)=>`<b>${fmtP(v)}</b>`},{k:'ptacos',h:'TACoS anterior',f:v=>fmtP(v)},{k:'tgt',h:'Target',f:v=>fmtP(v,0)},
+    {k:'tacos',h:'TACoS 30z',f:(v,r)=>`<b>${fmtP(v)}</b>`},{k:'ptacos',h:'TACoS anterior',f:v=>fmtP(v)},{k:'tgt',h:'Target',f:v=>fmtP(v,0)},{k:'over',h:'Spend peste (+) / sub (−) target',f:v=>v==null?'–':`<span class="${v>0?'up-bad':'up-good'}">${v>0?'+':'−'}${fmt$(Math.abs(v))}</span>`},
     {k:'status',h:'Status',l:1,f:pillSt},{k:'trend',h:'Trend TACoS',l:1,f:trTxt},
     {k:'acos',h:'ACoS 30z',f:v=>fmtP(v)},{k:'pacos',h:'ACoS anterior',f:v=>fmtP(v)},
     {k:'newn',h:'Campanii noi active'},{k:'newshare',h:'% spend SP prin campanii noi',f:v=>fmtP(v,0)},
     {k:'newcpc',h:'CPC campanii noi',f:v=>fmt$(v,2)},{k:'oldcpc',h:'CPC campanii existente',f:v=>fmt$(v,2)}
   ];
-  P.forEach(p=>p.dsales=p.psales?pct(p.sales,p.psales):null);
+  P.forEach(p=>{p.dsales=p.psales?pct(p.sales,p.psales):null;p.over=p.tgt!=null&&p.sales?p.spend-p.tgt/100*p.sales:null;});
   st.render=()=>{
     const c=$('#pf-cat').value,s=$('#pf-st').value,d=$('#pf-dir').value,t=$('#pf-tr').value,q=$('#pf-q').value.trim().toLowerCase();
     const R=P.filter(p=>(!c||p.catro===c)&&(!s||p.status===s)&&(!d||p.dir===d)&&(!t||p.trend===t)&&(!q||p.name.toLowerCase().includes(q)||p.asin.toLowerCase().includes(q)));
@@ -365,8 +379,45 @@ const trTxt=t=>t==='mai bine'?'<span class="up-good">▼ mai bine</span>':t==='m
     const n=makeTable($('#ctbl'),cols,R,st,LIM);
     const S=R.reduce((a,c)=>a+c.lc,0),SS=R.reduce((a,c)=>a+c.ls,0),O=R.reduce((a,c)=>a+c.lo,0);
     $('#cf-sum').innerHTML=`<span>Campanii: <b>${fmtN(R.length)}</b></span><span>Spend 30z: <b>${fmt$(S)}</b></span><span>Vânzări 30z: <b>${fmt$(SS)}</b></span><span>ACoS: <b>${SS?fmtP(S/SS*100):'–'}</b></span><span>Comenzi: <b>${fmtN(O)}</b></span>`;
+    renderTypes(f,q); lastRows=R;
     $('#cf-more').textContent=R.length>n?`Se văd primele ${n} din ${R.length} rânduri, după sortarea curentă. Folosiți filtrele ca să restrângeți lista.`:'';
   };
+  // --- type breakdown for the current filters (all except Tip) ---
+  let lastRows=[], lastTypes=[];
+  const VORD=['Merge','La limită','Nu merge'];
+  function renderTypes(f,q){
+    const base=C.filter(c=>Object.entries(f).every(([k,v])=>k==='t'||!v||c[k]===v)&&(!q||c.n.toLowerCase().includes(q)));
+    const tot=base.reduce((x,c)=>x+c.lc,0);
+    const m={}; base.forEach(c=>{(m[c.t]=m[c.t]||[]).push(c);});
+    const rows=Object.entries(m).map(([t,a])=>{
+      const lc=a.reduce((x,c)=>x+c.lc,0),ls=a.reduce((x,c)=>x+c.ls,0),lo=a.reduce((x,c)=>x+c.lo,0),lk=a.reduce((x,c)=>x+c.lk,0);
+      const vc=v=>a.filter(c=>c.v===v).length; const g=vc('Merge'),w=vc('La limită'),r=vc('Nu merge');
+      // ACoS threshold of the type = spend-weighted category threshold of its campaigns
+      const wl=a.reduce((x,c)=>x+c.lim*c.lc,0); const lim=lc?wl/lc:(a[0]?a[0].lim:null);
+      return {t,n:a.length,act:a.filter(c=>c.lc>0).length,lc,share:tot?lc/tot*100:null,ls,acos:ls?lc/ls*100:null,lim,cpc:lk?lc/lk:null,cvr:lk?lo/lk*100:null,lo,g,w,r,okr:(g+w+r)?g/(g+w+r)*100:null};
+    }).sort((a,b)=>b.lc-a.lc);
+    lastTypes=rows;
+    const ac=r=>r.acos==null?'–':`<b class="${r.acos<=r.lim?'up-good':r.acos>r.lim*1.5?'up-bad':''}">${fmtP(r.acos)}</b>`;
+    const sel=$('#cf-t').value;
+    $('#typedyn').innerHTML=`<thead><tr><th class="l">Tip campanie</th><th>Campanii</th><th>Cu spend 30z</th><th>Spend 30z</th><th>% din spend</th><th>Vânzări 30z</th><th>ACoS</th><th>Prag ACoS</th><th>CPC</th><th>CVR</th><th>Comenzi</th><th class="l">Merge / la limită / nu merge</th><th>% care merg</th></tr></thead><tbody>`+
+      rows.map(r=>`<tr data-t="${esc(r.t)}" class="${r.t===sel?'sel':''}" tabindex="0"><td class="l"><b>${esc(r.t)}</b></td><td>${fmtN(r.n)}</td><td>${fmtN(r.act)}</td><td>${fmt$(r.lc)}</td><td>${fmtP(r.share)}</td><td>${fmt$(r.ls)}</td><td>${ac(r)}</td><td>${fmtP(r.lim,0)}</td><td>${fmt$(r.cpc,2)}</td><td>${fmtP(r.cvr)}</td><td>${fmtN(r.lo)}</td><td class="l"><span class="pill g">${r.g}</span> <span class="pill w">${r.w}</span> <span class="pill r">${r.r}</span></td><td>${fmtP(r.okr,0)}</td></tr>`).join('')+'</tbody>';
+    $('#typedyn').querySelectorAll('tbody tr').forEach(tr=>{const go=()=>{const t=tr.dataset.t;$('#cf-t').value=($('#cf-t').value===t?'':t);st.render();};tr.onclick=go;tr.onkeydown=e=>{if(e.key==='Enter')go();};});
+    // best type: at least $100 spend and 2 campaigns with spend, lowest ACoS relative to its threshold
+    const cand=rows.filter(r=>r.lc>=100&&r.act>=2&&r.acos!=null).sort((a,b)=>a.acos/a.lim-b.acos/b.lim);
+    $('#cf-best').innerHTML=cand.length?`Cel mai eficient tip pe filtrele astea: <b>${esc(cand[0].t)}</b>, ACoS ${fmtP(cand[0].acos)} la prag ${fmtP(cand[0].lim,0)}, ${fmtP(cand[0].okr,0)} din campaniile cu verdict merg.`+(cand.length>1?` Cel mai slab: <b>${esc(cand[cand.length-1].t)}</b>, ACoS ${fmtP(cand[cand.length-1].acos)}.`:''):'<span class="note">Prea puține date pe filtrele astea (minim $100 spend pe tip).</span>';
+  }
+  // --- CSV export: native download via the artifact runtime, plain browser download elsewhere (e.g. Vercel) ---
+  const csvCell=v=>{if(v==null)return '';const s=typeof v==='number'?String(Math.round(v*100)/100):String(v);return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  const toCsv=(head,rows)=>'﻿'+[head.map(csvCell).join(','),...rows.map(r=>r.map(csvCell).join(','))].join('\n');
+  async function saveCsv(name,text){
+    try{const dl=window.claude&&await window.claude.use('downloads');if(dl){await dl.save({filename:name,data:text});return;}}catch(e){if(e&&e.code==='declined')return;}
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+  }
+  const tag=()=>{const p=['cf-cat','cf-t','cf-v','cf-p','cf-m'].map(i=>$('#'+i).value).filter(Boolean).join('_');return (p?'_'+p.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w-]+/g,'-'):'');};
+  $('#cf-exp').onclick=()=>saveCsv(`lunakai_campanii${tag()}.csv`,toCsv(['Campanie','Verdict','Directie','Produs','Categorie','Tip','Luna','Stare','Spend 30z','Vanzari 30z','Comenzi 30z','Click-uri 30z','ACoS 30z %','Prag ACoS %','ACoS anterior %','Spend de la lansare','Vanzari de la lansare'],
+    lastRows.map(c=>[c.n,c.v,c.tr,c.p,c.cat,c.t,c.m,c.st,c.lc,c.ls,c.lo,c.lk,c.acos,c.lim,c.pacos,c.tc,c.ts])));
+  $('#cf-exp-type').onclick=()=>saveCsv(`lunakai_tipuri_campanii${tag()}.csv`,toCsv(['Tip campanie','Campanii','Cu spend 30z','Spend 30z','% din spend','Vanzari 30z','ACoS %','Prag ACoS %','CPC','CVR %','Comenzi','Merge','La limita','Nu merge','% care merg'],
+    lastTypes.map(r=>[r.t,r.n,r.act,r.lc,r.share,r.ls,r.acos,r.lim,r.cpc,r.cvr,r.lo,r.g,r.w,r.r,r.okr])));
   ['#cf-v','#cf-tr','#cf-t','#cf-cat','#cf-p','#cf-m','#cf-st'].forEach(i=>$(i).onchange=st.render); $('#cf-q').oninput=st.render;
   $('#cf-reset').onclick=()=>{['#cf-v','#cf-tr','#cf-t','#cf-cat','#cf-p','#cf-m','#cf-st','#cf-q'].forEach(i=>$(i).value='');st.render();};
   st.render();
@@ -397,9 +448,18 @@ const trTxt=t=>t==='mai bine'?'<span class="up-good">▼ mai bine</span>':t==='m
   opts($('#wf-cat'),[...CATORDER,'Multi-produs (catch-all)'],'Toate'); opts($('#wf-p'),uniq(W.map(w=>w.p)),'Toate');
   opts($('#wf-n'),['Campanii noi (aug–oct)','Campanii existente'],'Toate');
   const tierCls={'Waste cert':'r','De urmărit':'w','Ineficient (ACoS > 200%)':'n'};
+  // Recommended action per row: driven by level x relevance x launch, same logic as the explanation panel
+  const CUT=['Prea larg / irelevant','Brand competitor','ASIN (targetare produs)'];
+  W.forEach(w=>{
+    const cut=CUT.includes(w.rel), left=Math.max(0,(w.thr||0)-(w.k||0));
+    if(w.tier==='Waste cert') w.act=cut?(w.rel.startsWith('ASIN')?'Negativ pe ASIN în această campanie.':'Negativ exact în această campanie.'):w.rel==='Brand Lunakai'?'Căutare de brand fără comenzi pe acest produs: o lăsăm doar în campania de brand.':'Nu negăm (cuvânt principal). Bid -30% pe el și verificăm oferta (preț, review-uri).';
+    else if(w.tier==='De urmărit') w.act=cut?`Negăm când atinge pragul (mai are ${left} click-uri).`:`Lăsăm să strângă date: mai are ${left} click-uri până la prag.`;
+    else w.act=w.launch?'Vinde, dar scump. Produs în lansare: bid -30%, nu negăm cât strânge vânzări.':'Vinde, dar scump: bid -30%, nu negăm (am pierde vizibilitatea).';
+  });
   const cols=[{k:'q',h:'Căutare (search term)',l:1,f:v=>`<b>${esc(v)}</b>`},{k:'tier',h:'Nivel',l:1,f:v=>`<span class="pill ${tierCls[v]}">${esc(v)}</span>`},
     {k:'rel',h:'Relevanță',l:1,f:v=>`<span class="pill ${v.startsWith('Relevant')||v==='Brand Lunakai'?'g':v==='Prea larg / irelevant'?'r':'n'}">${esc(v)}</span>`},
     {k:'launch',h:'Lansare',l:1,f:v=>v?'<span class="pill w">în lansare</span>':'–'},
+    {k:'act',h:'Ce facem',l:1,cls:'act'},
     {k:'p',h:'Produs',l:1},{k:'c',h:'Campanie',l:1,cls:'name',f:v=>`<span title="${esc(v)}">${esc(v)}</span>`},
     {k:'k',h:'Click-uri'},{k:'thr',h:'Prag click-uri'},{k:'cvr',h:'Conversie produs',f:v=>fmtP(v)},
     {k:'cost',h:'Spend',f:v=>`<b>${fmt$(v,2)}</b>`},{k:'s',h:'Vânzări',f:v=>fmt$(v,2)},{k:'o',h:'Comenzi'},{k:'acos',h:'ACoS',f:v=>fmtP(v,0)},{k:'cpc',h:'CPC',f:v=>fmt$(v,2)}];
